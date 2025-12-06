@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: myblog-django
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn project.wsgi:application --timeout 120"
+    plan: free
+    region: singapore
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10
+
+      # Django secret key
+      - key: SECRET_KEY
+        generateValue: true
+
+      # Disable debug in production
+      - key: DEBUG
+        value: "False"
+
+      # Tell Django settings we are running on Render
+      - key: RENDER
+        value: "True"
+
+databases:
+  - name: myblog-db
+    plan: free
+    region: singapore
+    databaseName: myblog
+    user: myblog_user
+    ipAllowList: []
