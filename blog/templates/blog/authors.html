@@ -1,0 +1,97 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Authors — MyBlog{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="mb-12">
+  <h1 class="text-4xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
+    👥 Meet Our Authors
+  </h1>
+  <p class="text-gray-600 text-lg">Discover talented writers and contributors from our community.</p>
+</div>
+
+<!-- Authors Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+  {% for author in authors %}
+    <a href="{% url 'author_detail' username=author.username %}" class="group bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-2xl hover:scale-105 transition-all duration-300">
+      
+      <!-- Author Header Background -->
+      <div class="h-24 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+      
+      <!-- Author Info Card -->
+      <div class="px-6 pb-6">
+        
+        <!-- Profile Image (overlapping header) -->
+        <div class="flex justify-center -mt-16 mb-4">
+          {% if author.profile_image %}
+            <img src="{{ author.profile_image.url }}" alt="{{ author.get_full_name|default:author.username }}" 
+                 class="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 object-cover shadow-md">
+          {% else %}
+            <div class="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center shadow-md">
+              <span class="text-4xl">👤</span>
+            </div>
+          {% endif %}
+        </div>
+        
+        <!-- Author Name & Username -->
+        <div class="text-center mb-4">
+          <h3 class="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition">
+            {{ author.get_full_name|default:author.username }}
+          </h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400">@{{ author.username }}</p>
+          
+          <!-- Location Badge -->
+          {% if author.location %}
+            <div class="flex items-center justify-center text-gray-600 dark:text-gray-400 text-sm mt-2">
+              <span>📍</span>
+              <span class="ml-1">{{ author.location }}</span>
+            </div>
+          {% endif %}
+        </div>
+        
+        <!-- Email -->
+        {% if author.email %}
+          <p class="text-sm text-gray-500 dark:text-gray-400 text-center mb-3 break-words">
+            {{ author.email }}
+          </p>
+        {% endif %}
+        
+        <!-- About Section -->
+        {% if author.about %}
+          <p class="text-sm text-gray-700 dark:text-gray-300 text-center line-clamp-3 mb-4">
+            {{ author.about }}
+          </p>
+        {% else %}
+          <p class="text-sm text-gray-500 dark:text-gray-400 text-center italic mb-4">
+            No bio available
+          </p>
+        {% endif %}
+        
+        <!-- View Profile CTA -->
+        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <button class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition text-sm">
+            View Profile & Posts →
+          </button>
+        </div>
+      </div>
+    </a>
+  {% empty %}
+    <div class="col-span-full text-center py-12">
+      <p class="text-gray-600 dark:text-gray-400 text-lg">No authors found yet.</p>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- CSS for line clamping (if Tailwind line-clamp is not available) -->
+<style>
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
+
+{% endblock %}

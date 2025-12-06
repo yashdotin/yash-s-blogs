@@ -1,0 +1,17 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Categories — MyBlog{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Categories</h1>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+  {% for cat in categories %}
+    <a href="{% url 'category_detail' slug=cat.slug %}" class="block p-4 bg-white dark:bg-gray-800 rounded shadow">
+      <h3 class="font-semibold">{{ cat.name }}</h3>
+      <p class="text-sm text-gray-500">{{ cat.description|default:'' }}</p>
+    </a>
+  {% empty %}
+    <p>No categories yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

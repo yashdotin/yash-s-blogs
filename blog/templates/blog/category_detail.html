@@ -1,0 +1,19 @@
+{% extends "blog/base.html" %}
+
+{% block title %}{{ category.name }} — MyBlog{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">{{ category.name }}</h1>
+<p class="text-sm text-gray-600 mb-6">{{ category.description|default:"" }}</p>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  {% for post in posts %}
+    <a href="{% url 'post_detail' slug=post.slug %}" class="block bg-white dark:bg-gray-800 p-4 rounded shadow">
+      <h3 class="font-semibold">{{ post.title }}</h3>
+      <p class="text-sm text-gray-500">By {{ post.author }} • {{ post.published_at|date:"M d, Y" }}</p>
+    </a>
+  {% empty %}
+    <p>No posts in this category yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

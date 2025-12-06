@@ -1,0 +1,269 @@
+{% load static %}
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <title>MyBlog</title>
+
+    <!-- Tailwind CDN with 3.x -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+
+    <!-- Light theme only: removed dark-mode auto script to keep UI white -->
+
+    <!-- CSRF for HTMX -->
+    <script>
+        function getCookie(name){
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== ''){
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++){
+              const cookie = cookies[i].trim();
+              if (cookie.startsWith(name + '=')){
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+        document.addEventListener('htmx:configRequest', evt => {
+          evt.detail.headers['X-CSRFToken'] = csrftoken;
+        });
+    </script>
+
+    {% block head %}{% endblock %}
+</head>
+
+<body class="bg-gradient-to-b from-white via-blue-50 to-white text-gray-900 transition duration-200">
+
+<!-- NAVBAR -->
+<header class="sticky top-0 z-40 bg-white/95 backdrop-blur-lg border-b border-blue-200 shadow-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-4">
+
+    <!-- Logo with Gradient -->
+    <a href="{% url 'home' %}" class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent hover:opacity-80 transition">
+      ✍️ MyBlog
+    </a>
+
+    <!-- Nav Links -->
+    <nav class="hidden md:flex items-center space-x-1 text-gray-700 font-medium">
+      <a href="{% url 'home' %}" class="px-3 py-2 rounded-lg hover:bg-blue-100 transition">Home</a>
+      <a href="{% url 'authors' %}" class="px-3 py-2 rounded-lg hover:bg-blue-100 transition">Authors</a>
+
+      
+    </nav>
+
+    <!-- Right Side: User Dropdown/Auth -->
+    <div class="flex items-center space-x-4">
+      <!-- User Dropdown or Auth Links -->
+      {% if request.user.is_authenticated %}
+        <div class="relative group">
+          <button type="button" class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg transition">
+            <span class="text-lg">👤</span>
+            <span class="hidden sm:inline text-sm font-semibold">{{ request.user.username }}</span>
+            <svg class="w-4 h-4 transition group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+            </svg>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div class="absolute right-0 mt-0 w-48 bg-white rounded-lg shadow-xl border border-blue-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <!-- Profile Section -->
+            <div class="px-4 py-3 border-b border-blue-200">
+              <p class="text-sm font-semibold text-gray-900">{{ request.user.username }}</p>
+              <p class="text-xs text-gray-600">{{ request.user.email }}</p>
+            </div>
+            
+            <!-- Edit Profile Link -->
+            <a href="{% url 'edit_profile' %}" class="flex items-center space-x-2 px-4 py-2 hover:bg-blue-100 text-gray-800 transition text-left">
+              <span>✏️</span>
+              <span>Edit Profile</span>
+            </a>
+            
+            <!-- Divider -->
+            <div class="border-t border-blue-200"></div>
+            
+            <!-- Logout Button -->
+            <button id="logoutBtn" type="button" onclick="document.getElementById('logoutForm').submit();" class="w-full flex items-center space-x-2 px-4 py-2 hover:bg-red-100 text-red-600 transition text-left">
+              <span>🚪</span>
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      {% else %}
+        <a href="{% url 'login' %}" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:shadow-lg transition text-sm font-semibold">Login</a>
+        <a href="{% url 'signup' %}" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:shadow-lg transition text-sm font-semibold hidden sm:inline">Sign Up</a>
+      {% endif %}
+
+      <!-- Mobile Menu Button -->
+      <button id="mobileMenuBtn" type="button" class="md:hidden p-2 rounded-lg hover:bg-blue-100">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu (hidden by default) -->
+  <div id="mobileMenu" class="hidden md:hidden border-t border-blue-200 bg-white">
+    <div class="px-4 py-3 space-y-2">
+      <a href="{% url 'home' %}" class="block px-3 py-2 rounded-lg hover:bg-blue-100">Home</a>
+      <a href="{% url 'authors' %}" class="block px-3 py-2 rounded-lg hover:bg-blue-100">Authors</a>
+        {% if request.user.is_authenticated %}
+          
+          <button id="mobileLogoutBtn" type="button" onclick="document.getElementById('logoutForm').submit();" class="w-full text-left block px-3 py-2 rounded-lg text-red-600 hover:bg-red-100">Logout</button>
+      {% else %}
+        <a href="{% url 'login' %}" class="block px-3 py-2 rounded-lg bg-blue-600 text-white">Login</a>
+        <a href="{% url 'signup' %}" class="block px-3 py-2 rounded-lg bg-green-600 text-white">Sign Up</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- FOOTER -->
+<footer class="mt-20 py-12 bg-gradient-to-t from-blue-50 to-white border-t border-blue-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+      <!-- About -->
+      <div>
+        <h3 class="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">MyBlog</h3>
+        <p class="text-sm text-gray-600">A modern blogging platform for developers, thinkers, and creators.</p>
+      </div>
+      
+      <!-- Quick Links -->
+      <div>
+        <h4 class="text-sm font-semibold text-gray-900 mb-3">Quick Links</h4>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><a href="{% url 'home' %}" class="hover:text-blue-600">Home</a></li>
+          <li><a href="{% url 'authors' %}" class="hover:text-blue-600">Authors</a></li>
+        </ul>
+      </div>
+
+      <!-- Social -->
+      <div>
+        <h4 class="text-sm font-semibold text-gray-900 mb-3">Connect</h4>
+        <div class="flex space-x-4">
+
+  <!-- Instagram -->
+  <a href="https://www.instagram.com/yash.awasthi.10/" target="_blank"
+     class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-pink-600 hover:text-white transition">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-4 h-4">
+      <path d="M7 2C4.239 2 2 4.239 2 7v10c0 2.761 2.239 5 5 5h10c2.761 0 5-2.239 5-5V7c0-2.761-2.239-5-5-5H7zm10 2c1.654 0 3 1.346 3 3v10c0 
+      1.654-1.346 3-3 3H7c-1.654 0-3-1.346-3-3V7c0-1.654 1.346-3 3-3h10zm-5 3c-2.757 0-5 2.243-5 
+      5s2.243 5 5 5 5-2.243 5-5-2.243-5-5-5zm0 2c1.654 0 3 1.346 3 
+      3s-1.346 3-3 3-3-1.346-3-3 1.346-3 3-3zm4.5-3c-.828 0-1.5.672-1.5 
+      1.5S15.672 9 16.5 9 18 8.328 18 7.5 17.328 6 16.5 6z"/>
+    </svg>
+  </a>
+
+  <!-- X (Twitter) -->
+  <a href="https://x.com/yashjs10" target="_blank"
+     class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-black hover:text-white transition">
+    <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+      <path d="M18.9 2H22l-7.9 9.1L24 22h-7.6l-5.2-6.8L5 22H2l8.4-9.8L0 2h7.6l4.7 6.2L18.9 2z"/>
+    </svg>
+  </a>
+
+  <!-- LinkedIn -->
+  <a href="https://www.linkedin.com/in/yash-awasthi-a7aa5b334/" target="_blank"
+     class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-blue-700 hover:text-white transition">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-4 h-4" viewBox="0 0 24 24">
+      <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 
+      2.5 1 4.98 2.12 4.98 3.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.1c.5-.9 
+      1.7-2.2 3.8-2.2 4 0 4.8 2.6 4.8 6V24h-4v-8.3c0-2-.04-4.6-2.8-4.6-2.8 
+      0-3.2 2.2-3.2 4.5V24h-4V8z"/>
+    </svg>
+  </a>
+
+  <!-- GitHub -->
+  <a href="https://github.com/yashdotin" target="_blank"
+     class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-4 h-4" viewBox="0 0 24 24">
+      <path d="M12 .5C5.65.5.5 5.65.5 12c0 
+      5.1 3.29 9.4 7.86 10.94.58.11.79-.25.79-.56 
+      0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.36-1.3-1.72-1.3-1.72-1.07-.73.08-.72.08-.72 
+      1.18.08 1.8 1.22 1.8 1.22 1.05 1.8 2.75 1.28 3.42.98.11-.76.41-1.28.74-1.57-2.56-.29-5.26-1.28-5.26-5.7 
+      0-1.26.45-2.3 1.2-3.11-.12-.29-.52-1.47.11-3.06 0 0 .98-.31 
+      3.2 1.18a11.1 11.1 0 0 1 5.82 0c2.22-1.49 3.2-1.18 3.2-1.18.63 
+      1.59.23 2.77.11 3.06.75.81 1.2 1.85 1.2 3.11 0 4.43-2.7 
+      5.41-5.28 5.69.42.36.79 1.1.79 2.22 0 1.6-.02 2.9-.02 3.29 
+      0 .31.21.68.8.56A10.99 10.99 0 0 0 23.5 12c0-6.35-5.15-11.5-11.5-11.5z"/>
+    </svg>
+  </a>
+
+  <!-- Personal Website -->
+  <a href="https://portfolio-prrv.onrender.com/" target="_blank"
+     class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-green-600 hover:text-white transition">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-4 h-4">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 
+      10-4.48 10-10S17.52 2 12 2zm0 2c1.94 0 3.68.78 
+      4.95 2.05L6.05 16.95A7.93 7.93 0 0 1 4 12c0-4.42 
+      3.58-8 8-8zm0 16c-1.94 0-3.68-.78-4.95-2.05L17.95 
+      7.05A7.93 7.93 0 0 1 20 12c0 4.42-3.58 8-8 8z"/>
+    </svg>
+  </a>
+
+</div>
+
+      </div>
+    </div>
+
+    <div class="border-t border-blue-200 pt-8 text-center text-sm text-gray-600">
+      <p>© {{ now|date:"Y" }} MyBlog — Made with ❤️ By Yash</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Dark Mode & Mobile Menu Toggle Scripts -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Force light theme: remove any persisted theme and ensure no 'dark' class
+    try {
+      localStorage.removeItem('theme');
+    } catch (e) {}
+    document.documentElement.classList.remove('dark');
+
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    // Mobile menu toggle
+    if (mobileMenuBtn && mobileMenu) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+
+    // Logout via hidden form submission to ensure CSRF token is included
+    const logoutForm = document.getElementById('logoutForm');
+    function submitLogout(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      if (logoutForm) logoutForm.submit();
+      else window.location.href = '{% url "home" %}';
+    }
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.addEventListener('click', submitLogout);
+
+    const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+    if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', submitLogout);
+  });
+</script>
+
+<!-- Hidden logout form so CSRF token is included in POSTs -->
+<form id="logoutForm" method="post" action="{% url 'logout' %}" style="display:none;">
+  {% csrf_token %}
+</form>
+
+</body>
+</html>

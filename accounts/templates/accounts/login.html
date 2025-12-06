@@ -1,0 +1,101 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block title %}Login — MyBlog{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
+    
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        Welcome Back
+      </h2>
+      <p class="mt-2 text-gray-600">Sign in to your account</p>
+    </div>
+
+    <!-- Form -->
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+      
+      {% if form.errors %}
+        <div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <p class="font-semibold mb-2">Login failed</p>
+          {% for field, errors in form.errors.items %}
+            {% for error in errors %}<p>{{ error }}</p>{% endfor %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Username -->
+      <div>
+        <label for="{{ form.username.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+          Username
+        </label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <p class="text-red-600 text-xs mt-1">{{ form.username.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Password -->
+      <div>
+        <label for="{{ form.password.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+          Password
+        </label>
+        {{ form.password }}
+        {% if form.password.errors %}
+          <p class="text-red-600 text-xs mt-1">{{ form.password.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition duration-200">
+        Sign In
+      </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="relative my-6">
+      <div class="absolute inset-0 flex items-center">
+        <div class="w-full border-t border-gray-300"></div>
+      </div>
+      <div class="relative flex justify-center text-sm">
+        <span class="px-2 bg-white text-gray-500">or</span>
+      </div>
+    </div>
+
+    <!-- Sign Up Link -->
+    <p class="text-center text-gray-700">
+      Don't have an account?
+      <a href="{% url 'signup' %}" class="font-semibold text-blue-600 hover:text-purple-600 transition">
+        Sign up
+      </a>
+    </p>
+  </div>
+</div>
+
+<style>
+  /* Explicit styles so input text is always visible */
+  #id_username, #id_password {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid #D1D5DB; /* gray-300 */
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    color: #111827; /* text-gray-900 */
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  #id_username::placeholder, #id_password::placeholder {
+    color: #9CA3AF; /* placeholder-gray-400 */
+  }
+  #id_username:focus, #id_password:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    border-color: #3B82F6; /* blue-500 */
+  }
+</style>
+{% endblock %}

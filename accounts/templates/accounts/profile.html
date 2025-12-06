@@ -1,0 +1,136 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block title %}Edit Profile — MyBlog{% endblock %}
+
+{% block head %}
+<style>
+  .profile-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .profile-image-preview {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #3b82f6;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="max-w-2xl mx-auto py-10">
+  
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-4xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+      👤 Edit Your Profile
+    </h1>
+    <p class="text-gray-600">Update your profile information and avatar.</p>
+  </div>
+
+  <!-- Profile Form -->
+  <form method="post" enctype="multipart/form-data" class="profile-container p-8 space-y-6">
+    {% csrf_token %}
+
+    <!-- Current Profile Image Preview -->
+    {% if request.user.profile_image %}
+      <div class="flex justify-center mb-6">
+        <img src="{{ request.user.profile_image.url }}" alt="Profile" class="profile-image-preview">
+      </div>
+    {% else %}
+      <div class="flex justify-center mb-6">
+        <div class="w-[150px] h-[150px] bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center border-4 border-blue-500">
+          <span class="text-6xl">👤</span>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Profile Image Upload -->
+    <div>
+      <label for="id_profile_image" class="block text-sm font-semibold text-gray-700 mb-2">
+        Profile Picture
+      </label>
+      <input type="file" id="id_profile_image" name="profile_image" accept="image/*" 
+             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+      <p class="text-xs text-gray-500 mt-1">JPG, PNG or GIF. Max 5MB</p>
+      {% if form.profile_image.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.profile_image.errors }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Name -->
+    <div>
+      <label for="id_name" class="block text-sm font-semibold text-gray-700 mb-2">
+        Full Name
+      </label>
+      <input type="text" id="id_name" name="name" value="{{ request.user.name }}" placeholder="Your full name"
+             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400">
+      {% if form.name.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.name.errors }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Location -->
+    <div>
+      <label for="id_location" class="block text-sm font-semibold text-gray-700 mb-2">
+        Location
+      </label>
+      <input type="text" id="id_location" name="location" value="{{ request.user.location }}" placeholder="City, Country"
+             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400">
+      {% if form.location.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.location.errors }}</p>
+      {% endif %}
+    </div>
+
+    <!-- About -->
+    <div>
+      <label for="id_about" class="block text-sm font-semibold text-gray-700 mb-2">
+        About You
+      </label>
+      <textarea id="id_about" name="about" rows="4" placeholder="Tell us about yourself..."
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400">{{ request.user.about }}</textarea>
+      {% if form.about.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.about.errors }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Email -->
+    <div>
+      <label for="id_email" class="block text-sm font-semibold text-gray-700 mb-2">
+        Email Address
+      </label>
+      <input type="email" id="id_email" name="email" value="{{ request.user.email }}" placeholder="your@email.com"
+             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400">
+      {% if form.email.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.email.errors }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Form Errors -->
+    {% if form.non_field_errors %}
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p class="text-red-700 font-semibold">Error saving profile:</p>
+        {% for error in form.non_field_errors %}
+          <p class="text-red-600 text-sm">{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="flex items-center space-x-4 pt-6 border-t border-gray-200">
+      <button type="submit" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
+        Save Changes
+      </button>
+      <a href="{% url 'home' %}" class="px-6 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition">
+        Cancel
+      </a>
+    </div>
+  </form>
+
+</div>
+
+{% endblock %}

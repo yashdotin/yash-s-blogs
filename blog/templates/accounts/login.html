@@ -1,0 +1,28 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block title %}Login — MyBlog{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow">
+  <h2 class="text-2xl font-bold mb-4">Sign in</h2>
+  <form method="post">
+    {% csrf_token %}
+    {% if form.errors %}
+      <div class="text-red-600 mb-3">Please correct the errors below.</div>
+    {% endif %}
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-1">Username</label>
+      {{ form.username }}
+    </div>
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-1">Password</label>
+      {{ form.password }}
+    </div>
+    <div class="flex items-center justify-between">
+      <button type="submit" class="px-4 py-2 bg-sky-600 text-white rounded">Login</button>
+      <a href="/" class="text-sm text-gray-500">Back to home</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

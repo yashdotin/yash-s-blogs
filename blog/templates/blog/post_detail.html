@@ -1,0 +1,108 @@
+{% extends "blog/base.html" %}
+{% block title %}{{ post.title }} — MyBlog{% endblock %}
+
+{% block content %}
+
+<!-- Post Header -->
+<section class="max-w-3xl mx-auto">
+  
+  <h1 class="text-4xl font-extrabold text-gray-900 leading-tight">
+    {{ post.title }}
+  </h1>
+
+  <div class="flex items-center space-x-4 mt-4 text-gray-600">
+    <p class="text-sm">
+      By <a href="{% url 'author_detail' username=post.author.username %}" class="font-semibold text-blue-600 hover:text-purple-600 transition">{{ post.author }}</a>
+    </p>
+
+    <span class="text-sm">• {{ post.reading_time }} min read</span>
+    <span class="text-sm">• {{ post.published_at|date:"F j, Y" }}</span>
+  </div>
+
+  {% if post.featured_image %}
+    <img src="{{ post.featured_image.url }}" 
+         alt="featured" 
+         class="w-full rounded-xl mt-8 shadow-lg">
+  {% endif %}
+
+  {% if post.story %}
+    <div class="mt-6 p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-l-4 border-blue-500 rounded-lg">
+      <p class="text-gray-800 leading-relaxed">
+        {{ post.story }}
+      </p>
+    </div>
+  {% endif %}
+</section>
+
+<!-- Post Content -->
+<section class="prose prose-lg lg:prose-xl mx-auto mt-10 leading-relaxed">
+  {{ post.body|safe }}
+</section>
+
+<!-- Divider -->
+<div class="max-w-3xl mx-auto border-t border-gray-200 mt-16 mb-10"></div>
+
+<!-- Author Box -->
+<section class="max-w-3xl mx-auto">
+  <a href="{% url 'author_detail' username=post.author.username %}" class="block bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 p-6 rounded-lg shadow-sm hover:shadow-md hover:border-blue-400 transition">
+    <div class="flex items-start space-x-4">
+      <!-- Author Image -->
+      <div class="flex-shrink-0">
+        {% if post.author.profile_image %}
+          <img src="{{ post.author.profile_image.url }}" alt="{{ post.author.get_full_name }}" 
+               class="w-20 h-20 rounded-full object-cover border-2 border-blue-600">
+        {% else %}
+          <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-2xl border-2 border-blue-600">
+            👤
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Author Info -->
+      <div class="flex-1">
+        <h3 class="text-lg font-bold text-gray-900">
+          About the Author: {{ post.author.get_full_name|default:post.author.username }}
+        </h3>
+        
+        <!-- Author Details -->
+        <div class="mt-2 space-y-1">
+          <p class="text-sm text-gray-600">
+            <span class="font-semibold">@{{ post.author.username }}</span>
+            {% if post.author.location %}
+              • 📍 {{ post.author.location }}
+            {% endif %}
+          </p>
+          {% if post.author.email %}
+            <p class="text-xs text-gray-500">{{ post.author.email }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Author Bio -->
+        {% if post.author.about %}
+          <p class="text-gray-700 text-sm mt-3 line-clamp-3">
+            {{ post.author.about }}
+          </p>
+        {% else %}
+          <p class="text-gray-500 text-sm italic mt-3">
+            This author hasn't added a bio yet.
+          </p>
+        {% endif %}
+
+        <!-- View Profile CTA -->
+        <p class="text-blue-600 font-semibold text-sm mt-3 hover:text-purple-600 transition">
+          View full profile & posts →
+        </p>
+      </div>
+    </div>
+  </a>
+</section>
+
+<!-- Back to Home -->
+<div class="max-w-3xl mx-auto mt-12">
+  <a href="/" 
+     class="inline-block text-sky-600 font-medium hover:underline">
+    ← Back to Home
+  </a>
+</div>
+
+{% endblock %}
